@@ -26,3 +26,8 @@ src/ftd2xx.dll
 scripts/swolisten
 
 .direnv/
+
+prebuilt*
+.project
+.cproject
+.settings
