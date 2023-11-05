@@ -28,11 +28,7 @@ SRC +=          \
 	traceswoasync.c	\
 	platform_common.c \
 
-all:	blackmagic.bin blackmagic_dfu.bin blackmagic_dfu.hex
-
-blackmagic_dfu.elf: usbdfu.o dfucore.o dfu_f1.o platform_common.o serialno.o
-	@echo "  LD      $@"
-	$(Q)$(CC) $^ -o $@ $(LDFLAGS_BOOT)
+all:	blackmagic.bin
 
 host_clean:
 	-$(Q)$(RM) blackmagic.bin blackmagic_dfu blackmagic_dfu.bin blackmagic_dfu.hex
