@@ -20,7 +20,6 @@
  */
 #include "general.h"
 #include "platform.h"
-#include "morse.h"
 #include "usb.h"
 
 #include <libopencm3/cm3/systick.h>

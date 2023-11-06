@@ -50,8 +50,6 @@ typedef struct stat stat_s;
 #include "platform.h"
 #include "usb_serial.h"
 #include "aux_serial.h"
-#include "rtt.h"
-#include "rtt_if.h"
 #include "usb_types.h"
 
 #include <libopencm3/cm3/cortex.h>

@@ -24,8 +24,6 @@
 #include "platform.h"
 #include "usb.h"
 #include "aux_serial.h"
-#include "morse.h"
-#include "exception.h"
 
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/cm3/scb.h>
@@ -39,7 +37,7 @@
 #include <libopencm3/usb/dwc/otg_fs.h>
 #include <libopencm3/stm32/spi.h>
 
-jmp_buf fatal_error_jmpbuf;
+//jmp_buf fatal_error_jmpbuf;
 volatile uint32_t magic[2] __attribute__((section(".noinit")));
 
 void platform_init(void)

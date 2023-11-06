@@ -22,12 +22,6 @@
 
 #include "general.h"
 #include "platform.h"
-#include "target.h"
-#include "exception.h"
-#include "command.h"
-#ifdef ENABLE_RTT
-#include "rtt.h"
-#endif
 
 int main(int argc, char **argv)
 {

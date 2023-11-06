@@ -25,8 +25,6 @@ CFLAGS += -DENABLE_DEBUG
 endif
 
 SRC =              \
-	exception.c    \
-	hex_utils.c    \
 	main.c         \
 
 ifeq (,$(filter all_platforms,$(MAKECMDGOALS)))
