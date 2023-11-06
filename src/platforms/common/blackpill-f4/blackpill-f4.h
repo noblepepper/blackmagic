@@ -96,28 +96,6 @@
 
 /* Hardware definitions... */
 /* Build the code using `make PROBE_HOST=blackpill-f4x1cx ALTERNATIVE_PINOUT=1` to select the second pinout. */
-#define TDI_PORT GPIOB
-#define TDI_PIN  PINOUT_SWITCH(GPIO6, GPIO5)
-
-#define TDO_PORT GPIOB
-#define TDO_PIN  PINOUT_SWITCH(GPIO7, GPIO6)
-
-#define TCK_PORT   GPIOB
-#define TCK_PIN    PINOUT_SWITCH(GPIO8, GPIO7)
-#define SWCLK_PORT TCK_PORT
-#define SWCLK_PIN  TCK_PIN
-
-#define TMS_PORT   GPIOB
-#define TMS_PIN    PINOUT_SWITCH(GPIO9, GPIO8)
-#define SWDIO_PORT TMS_PORT
-#define SWDIO_PIN  TMS_PIN
-
-#define TRST_PORT PINOUT_SWITCH(GPIOA, GPIOB)
-#define TRST_PIN  PINOUT_SWITCH(GPIO6, GPIO3)
-
-#define NRST_PORT PINOUT_SWITCH(GPIOA, GPIOB)
-#define NRST_PIN  PINOUT_SWITCH(GPIO5, GPIO4)
-
 #define PWR_BR_PORT PINOUT_SWITCH(GPIOA, GPIOB)
 #define PWR_BR_PIN  PINOUT_SWITCH(GPIO1, GPIO9)
 
@@ -218,10 +196,6 @@
 #define BOOTMAGIC0 UINT32_C(0xb007da7a)
 #define BOOTMAGIC1 UINT32_C(0xbaadfeed)
 
-#define TMS_SET_MODE()     gpio_mode_setup(TMS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, TMS_PIN);
-#define SWDIO_MODE_FLOAT() gpio_mode_setup(SWDIO_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SWDIO_PIN);
-
-#define SWDIO_MODE_DRIVE() gpio_mode_setup(SWDIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SWDIO_PIN);
 #define UART_PIN_SETUP()                                                                            \
 	do {                                                                                            \
 		gpio_mode_setup(USBUSART_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, USBUSART_TX_PIN);              \
@@ -242,12 +216,7 @@
 #define IRQ_PRI_USB          (1U << 4U)
 #define IRQ_PRI_USBUSART     (2U << 4U)
 #define IRQ_PRI_USBUSART_DMA (2U << 4U)
-#define IRQ_PRI_TRACE        (0U << 4U)
 
-#define TRACE_TIM          TIM3
-#define TRACE_TIM_CLK_EN() rcc_periph_clock_enable(RCC_TIM3)
-#define TRACE_IRQ          NVIC_TIM3_IRQ
-#define TRACE_ISR(x)       tim3_isr(x)
 
 #define SET_RUN_STATE(state)      \
 	{                             \
