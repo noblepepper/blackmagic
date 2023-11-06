@@ -46,7 +46,7 @@ extern uint16_t usb_config;
 #define GDB_IF_NO  0U
 #define UART_IF_NO 2U
 #define DFU_IF_NO  4U
-#define TOTAL_INTERFACES 5U
+#define TOTAL_INTERFACES 2U
 
 void blackmagic_usb_init(void);
 

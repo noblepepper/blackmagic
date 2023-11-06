@@ -30,13 +30,9 @@
  * Endpoint Usage
  *
  *     0 Control Endpoint
- * IN  1 GDB CDC DATA
- * OUT 1 GDB CDC DATA
- * IN  2 GDB CDC CTR
  * IN  3 UART CDC DATA
  * OUT 3 UART CDC DATA
  * OUT 4 UART CDC CTRL
- * In  5 Trace Capture
  *
  */
 
@@ -85,44 +81,6 @@ static uint8_t debug_serial_debug_write_index;
 static uint8_t debug_serial_debug_read_index;
 #endif
 
-static usbd_request_return_codes_e gdb_serial_control_request(usbd_device *dev, usb_setup_data_s *req, uint8_t **buf,
-	uint16_t *const len, void (**complete)(usbd_device *dev, usb_setup_data_s *req))
-{
-	(void)buf;
-	(void)complete;
-	/* Is the request for the GDB UART interface? */
-	if (req->wIndex != GDB_IF_NO)
-		return USBD_REQ_NEXT_CALLBACK;
-
-	switch (req->bRequest) {
-	case USB_CDC_REQ_SET_CONTROL_LINE_STATE:
-		/* Send a notification back on the notification endpoint */
-		usb_serial_set_state(dev, req->wIndex, CDCACM_GDB_ENDPOINT + 1U);
-		gdb_serial_dtr = req->wValue & 1U;
-		return USBD_REQ_HANDLED;
-	case USB_CDC_REQ_SET_LINE_CODING:
-		if (*len < sizeof(usb_cdc_line_coding_s))
-			return USBD_REQ_NOTSUPP;
-		return USBD_REQ_HANDLED; /* Ignore on GDB Port */
-	case USB_CDC_REQ_GET_LINE_CODING: {
-		if (*len < sizeof(usb_cdc_line_coding_s))
-			return USBD_REQ_NOTSUPP;
-		usb_cdc_line_coding_s *line_coding = (usb_cdc_line_coding_s *)*buf;
-		/* This tells the host that we talk 1MBaud, 8-bit no parity w/ 1 stop bit */
-		line_coding->dwDTERate = 1 * 1000 * 1000;
-		line_coding->bCharFormat = USB_CDC_1_STOP_BITS;
-		line_coding->bParityType = USB_CDC_NO_PARITY;
-		line_coding->bDataBits = 8;
-		return USBD_REQ_HANDLED;
-	}
-	}
-	return USBD_REQ_NOTSUPP;
-}
-
-bool gdb_serial_get_dtr(void)
-{
-	return gdb_serial_dtr;
-}
 
 static usbd_request_return_codes_e debug_serial_control_request(usbd_device *dev, usb_setup_data_s *req, uint8_t **buf,
 	uint16_t *const len, void (**complete)(usbd_device *dev, usb_setup_data_s *req))
@@ -186,13 +144,9 @@ void usb_serial_set_config(usbd_device *dev, uint16_t value)
 
 	usbd_register_control_callback(dev, USB_REQ_TYPE_CLASS | USB_REQ_TYPE_INTERFACE,
 		USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT, debug_serial_control_request);
-	usbd_register_control_callback(dev, USB_REQ_TYPE_CLASS | USB_REQ_TYPE_INTERFACE,
-		USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT, gdb_serial_control_request);
-
 	/* Notify the host that DCD is asserted.
 	 * Allows the use of /dev/tty* devices on *BSD/MacOS
 	 */
-	usb_serial_set_state(dev, GDB_IF_NO, CDCACM_GDB_ENDPOINT);
 	usb_serial_set_state(dev, UART_IF_NO, CDCACM_UART_ENDPOINT);
 
 #if defined(ENABLE_DEBUG) && defined(PLATFORM_HAS_DEBUG)
