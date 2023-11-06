@@ -31,7 +31,7 @@
 #include "version.h"
 #include "usb_types.h"
 
-#define BOARD_IDENT "Black Magic Probe " PLATFORM_IDENT FIRMWARE_VERSION
+#define BOARD_IDENT "BlackPill" PLATFORM_IDENT FIRMWARE_VERSION
 
 /* Top-level device descriptor */
 static const usb_device_descriptor_s dev_desc = {
@@ -49,8 +49,8 @@ static const usb_device_descriptor_s dev_desc = {
 #else
 	.bMaxPacketSize0 = 32,
 #endif
-	.idVendor = 0x1d50,
-	.idProduct = 0x6018,
+	.idVendor = 0x0483,
+	.idProduct = 0x5740,
 	.bcdDevice = 0x0109,
 	.iManufacturer = 1,
 	.iProduct = 2,
@@ -201,12 +201,10 @@ static const usb_config_descriptor_s config = {
 };
 
 static const char *const usb_strings[] = {
-	"Black Magic Debug",
+	"BlackPill",
 	BOARD_IDENT,
 	serial_no,
-	"Black Magic GDB Server",
-	"Black Magic UART Port",
-	"Black Magic DFU",
+	"BlackPill UART Port",
 };
 
 /*

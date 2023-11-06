@@ -149,7 +149,7 @@ all_platforms:
 
 command.c: include/version.h
 
-VERSION_HEADER := \#define FIRMWARE_VERSION "$(GIT_VERSION)"
+VERSION_HEADER := \#define FIRMWARE_VERSION ""
 
 include/version.h: FORCE
 	@# If git isn't found then GIT_VERSION will be an empty string.

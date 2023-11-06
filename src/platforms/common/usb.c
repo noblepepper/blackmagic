@@ -25,7 +25,6 @@
 #include "usb.h"
 #include "usb_descriptors.h"
 #include "usb_serial.h"
-#include "usb_dfu_stub.h"
 #include "serialno.h"
 
 usbd_device *usbdev = NULL;
@@ -59,7 +58,6 @@ void blackmagic_usb_init(void)
 	usbd_register_bos_descriptor(usbdev, &bos);
 	microsoft_os_register_descriptor_sets(usbdev, microsoft_os_descriptor_sets, DESCRIPTOR_SETS);
 	usbd_register_set_config_callback(usbdev, usb_serial_set_config);
-	usbd_register_set_config_callback(usbdev, dfu_set_config);
 	usbd_register_set_config_callback(usbdev, usb_config_set_updated);
 
 	nvic_set_priority(USB_IRQ, IRQ_PRI_USB);

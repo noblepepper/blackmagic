@@ -26,7 +26,7 @@
 /* Return 0 for the ST-Link on a STM8S Discovery board and 1 for Bluepill */
 uint8_t detect_rev()
 {
-	/* Enable peripherals used by both debugger and DFU. */
+	/* Enable peripherals */
 	rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_GPIOB);
 	rcc_periph_clock_enable(RCC_USB);

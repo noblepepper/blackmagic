@@ -3,7 +3,7 @@ CC = $(CROSS_COMPILE)gcc
 OBJCOPY = $(CROSS_COMPILE)objcopy
 
 CFLAGS += -mcpu=cortex-m3 -mthumb \
-	-DSTM32F1  -DDFU_SERIAL_LENGTH=9 -I../libopencm3/include \
+	-DSTM32F1  -I../libopencm3/include \
 	-I platforms/common/stm32
 LDFLAGS_BOOT := $(LDFLAGS) --specs=nano.specs -lopencm3_stm32f1 \
 	-Wl,-T,platforms/swlink/swlink.ld -nostartfiles -lc\
@@ -29,4 +29,4 @@ SRC +=          \
 all:	blackmagic.bin
 
 host_clean:
-	-$(Q)$(RM) blackmagic.bin blackmagic_dfu blackmagic_dfu.bin blackmagic_dfu.hex
+	-$(Q)$(RM) blackmagic.bin
