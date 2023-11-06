@@ -44,18 +44,6 @@ static uint8_t monitor_ticks = 0;
 #define ADC_VREFINT_MIN 1404U
 #endif
 
-static void usb_config_morse_msg_update(void)
-{
-	if (usb_config_is_updated()) {
-		if (usb_config == 0)
-			morse("NO USB HOST.", true);
-		else
-			morse(NULL, false);
-
-		usb_config_clear_updated();
-	}
-}
-
 void platform_timing_init(void)
 {
 	/* Setup heartbeat timer */

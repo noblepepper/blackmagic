@@ -56,9 +56,6 @@ extern bool debug_bmp;
 #define LED_PORT_UART GPIOC
 #define LED_UART      GPIO14
 
-#define PLATFORM_HAS_TRACESWO 1
-#define NUM_TRACE_PACKETS     128U /* This is an 8K buffer */
-#define TRACESWO_PROTOCOL     2U   /* 1 = Manchester, 2 = NRZ / async */
 
 #define SWD_CR      GPIO_CRH(SWDIO_PORT)
 #define SWD_CR_MULT (1U << ((13U - 8U) << 2U))

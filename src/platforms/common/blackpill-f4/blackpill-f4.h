@@ -27,8 +27,6 @@
 #include "timing.h"
 #include "timing_stm32.h"
 
-#define PLATFORM_HAS_TRACESWO
-
 /*
  * If the SHIELD macro is passed to make, other macros are defined.
  * Build the code using `make PROBE_HOST=blackpill-f4x1cx SHIELD=1` to define the SHIELD macro.
@@ -83,7 +81,6 @@
  * Important pin mappings for STM32 implementation:
  *   * JTAG/SWD
  *     * PB6 or PB5: TDI
- *     * PB7 or PB6: TDO/TRACESWO
  *     * PB8 or PB7: TCK/SWCLK
  *     * PB9 or PB8: TMS/SWDIO
  *     * PA6 or PB3: TRST

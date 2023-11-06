@@ -323,44 +323,6 @@ static const usb_iface_assoc_descriptor_s dfu_assoc = {
 	.iFunction = 6,
 };
 
-/* Trace/SWO interface */
-
-#ifdef PLATFORM_HAS_TRACESWO
-static const usb_endpoint_descriptor_s trace_endp = {
-	.bLength = USB_DT_ENDPOINT_SIZE,
-	.bDescriptorType = USB_DT_ENDPOINT,
-	.bEndpointAddress = TRACE_ENDPOINT | USB_REQ_TYPE_IN,
-	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
-	.wMaxPacketSize = TRACE_ENDPOINT_SIZE,
-	.bInterval = 0,
-};
-
-const usb_interface_descriptor_s trace_iface = {
-	.bLength = USB_DT_INTERFACE_SIZE,
-	.bDescriptorType = USB_DT_INTERFACE,
-	.bInterfaceNumber = TRACE_IF_NO,
-	.bAlternateSetting = 0,
-	.bNumEndpoints = 1,
-	.bInterfaceClass = 0xff,
-	.bInterfaceSubClass = 0xff,
-	.bInterfaceProtocol = 0xff,
-	.iInterface = 7,
-
-	.endpoint = &trace_endp,
-};
-
-static const usb_iface_assoc_descriptor_s trace_assoc = {
-	.bLength = USB_DT_INTERFACE_ASSOCIATION_SIZE,
-	.bDescriptorType = USB_DT_INTERFACE_ASSOCIATION,
-	.bFirstInterface = TRACE_IF_NO,
-	.bInterfaceCount = 1,
-	.bFunctionClass = 0xff,
-	.bFunctionSubClass = 0xff,
-	.bFunctionProtocol = 0xff,
-	.iFunction = 7,
-};
-#endif
-
 /* Interface and configuration descriptors */
 
 static const usb_interface_s ifaces[] = {
@@ -387,13 +349,6 @@ static const usb_interface_s ifaces[] = {
 		.iface_assoc = &dfu_assoc,
 		.altsetting = &dfu_iface,
 	},
-#if defined(PLATFORM_HAS_TRACESWO)
-	{
-		.num_altsetting = 1,
-		.iface_assoc = &trace_assoc,
-		.altsetting = &trace_iface,
-	},
-#endif
 };
 
 static const usb_config_descriptor_s config = {
@@ -416,9 +371,6 @@ static const char *const usb_strings[] = {
 	"Black Magic GDB Server",
 	"Black Magic UART Port",
 	"Black Magic DFU",
-#ifdef PLATFORM_HAS_TRACESWO
-	"Black Magic Trace Capture",
-#endif
 };
 
 /*
@@ -434,9 +386,6 @@ static const char *const usb_strings[] = {
 #define DESCRIPTOR_SETS                1U
 #define PROPERTY_DEVICE_INTERFACE_GUID u"DeviceInterfaceGUID"
 #define VALUE_DFU_INTERFACE_GUID       u"{76be5ca1-e304-4b32-be5f-d9369d3d201a}"
-#ifdef PLATFORM_HAS_TRACESWO
-#define VALUE_TRACE_INTERFACE_GUID u"{76be5ca1-e305-4b32-be5f-d9369d3d201a}"
-#endif
 
 static const struct {
 	microsoft_os_feature_compatible_id_descriptor driver_binding;
@@ -466,36 +415,6 @@ static const struct {
 		},
 };
 
-#ifdef PLATFORM_HAS_TRACESWO
-static const struct {
-	microsoft_os_feature_compatible_id_descriptor driver_binding;
-	microsoft_os_feature_registry_property_descriptor interface_guid;
-} microsoft_os_trace_if_features = {
-	.driver_binding =
-		{
-			.header =
-				{
-					.wLength = MICROSOFT_OS_FEATURE_COMPATIBLE_ID_DESCRIPTOR_SIZE,
-					.wDescriptorType = MICROSOFT_OS_FEATURE_COMPATIBLE_ID,
-				},
-			.compatible_id = MICROSOFT_OS_COMPATIBLE_ID_WINUSB,
-			.sub_compatible_id = MICROSOFT_OS_COMPATIBLE_ID_NONE,
-		},
-	.interface_guid =
-		{
-			.header =
-				{
-					.wDescriptorType = MICROSOFT_OS_FEATURE_REG_PROPERTY,
-				},
-			.wPropertyDataType = REG_SZ,
-			.wPropertyNameLength = ARRAY_LENGTH(PROPERTY_DEVICE_INTERFACE_GUID) * 2U,
-			.PropertyName = PROPERTY_DEVICE_INTERFACE_GUID,
-			.wPropertyDataLength = ARRAY_LENGTH(VALUE_TRACE_INTERFACE_GUID) * 2U,
-			.PropertyData = VALUE_TRACE_INTERFACE_GUID,
-		},
-};
-#endif
-
 static const microsoft_os_descriptor_function_subset_header microsoft_os_descriptor_function_subsets[] = {
 	{
 		.wLength = MICROSOFT_OS_DESCRIPTOR_FUNCTION_SUBSET_HEADER_SIZE,
@@ -507,18 +426,6 @@ static const microsoft_os_descriptor_function_subset_header microsoft_os_descrip
 		.feature_descriptors = &microsoft_os_dfu_if_features,
 		.num_feature_descriptors = 2,
 	},
-#ifdef PLATFORM_HAS_TRACESWO
-	{
-		.wLength = MICROSOFT_OS_DESCRIPTOR_FUNCTION_SUBSET_HEADER_SIZE,
-		.wDescriptorType = MICROSOFT_OS_SUBSET_HEADER_FUNCTION,
-		.bFirstInterface = TRACE_IF_NO,
-		.bReserved = 0,
-		.wTotalLength = 0,
-
-		.feature_descriptors = &microsoft_os_trace_if_features,
-		.num_feature_descriptors = 2,
-	},
-#endif
 };
 
 static const microsoft_os_descriptor_config_subset_header microsoft_os_descriptor_config_subset = {
@@ -549,11 +456,6 @@ static const microsoft_os_descriptor_set_information microsoft_os_descriptor_set
 	.dwWindowsVersion = MICROSOFT_WINDOWS_VERSION_WINBLUE,
 	.wMSOSDescriptorSetTotalLength = MICROSOFT_OS_DESCRIPTOR_SET_HEADER_SIZE +
 		MICROSOFT_OS_DESCRIPTOR_CONFIG_SUBSET_HEADER_SIZE +
-#ifdef PLATFORM_HAS_TRACESWO
-		MICROSOFT_OS_DESCRIPTOR_FUNCTION_SUBSET_HEADER_SIZE + MICROSOFT_OS_FEATURE_COMPATIBLE_ID_DESCRIPTOR_SIZE +
-		MICROSOFT_OS_FEATURE_REGISTRY_PROPERTY_DESCRIPTOR_SIZE_BASE +
-		(ARRAY_LENGTH(PROPERTY_DEVICE_INTERFACE_GUID) * 2U) + (ARRAY_LENGTH(VALUE_TRACE_INTERFACE_GUID) * 2U) +
-#endif
 		MICROSOFT_OS_DESCRIPTOR_FUNCTION_SUBSET_HEADER_SIZE + MICROSOFT_OS_FEATURE_COMPATIBLE_ID_DESCRIPTOR_SIZE +
 		MICROSOFT_OS_FEATURE_REGISTRY_PROPERTY_DESCRIPTOR_SIZE_BASE +
 		(ARRAY_LENGTH(PROPERTY_DEVICE_INTERFACE_GUID) * 2U) + (ARRAY_LENGTH(VALUE_DFU_INTERFACE_GUID) * 2U),
