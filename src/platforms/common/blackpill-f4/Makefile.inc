@@ -3,8 +3,10 @@ BMP_BOOTLOADER ?=
 CC = $(CROSS_COMPILE)gcc
 OBJCOPY = $(CROSS_COMPILE)objcopy
 
-CFLAGS +=                           \
+CFLAGS +=                          	\
 	-Istm32/include                 \
+	-Iinclude                 	\
+	-Itarget			\
 	-mcpu=cortex-m4                 \
 	-mthumb                         \
 	-mfloat-abi=hard                \
@@ -12,6 +14,7 @@ CFLAGS +=                           \
 	-DSTM32F4                       \
 	-I../libopencm3/include         \
 	-Iplatforms/common/stm32        \
+	-Iplatforms/$(PROBE_HOST) \
 	-Iplatforms/common/blackpill-f4
 
 LDFLAGS_BOOT =              \

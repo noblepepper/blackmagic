@@ -81,14 +81,6 @@ void sys_tick_handler(void)
 {
 	time_ms += SYSTICKMS;
 
-	if (morse_tick >= MORSECNT) {
-		if (running_status)
-			gpio_toggle(LED_PORT, LED_IDLE_RUN);
-		usb_config_morse_msg_update();
-		SET_ERROR_STATE(morse_update());
-		morse_tick = 0;
-	} else
-		++morse_tick;
 
 #if defined(PLATFORM_HAS_POWER_SWITCH) && defined(STM32F1)
 	/* First check if target power is presently enabled */

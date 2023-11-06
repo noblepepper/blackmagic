@@ -182,15 +182,6 @@ void usb_serial_set_config(usbd_device *dev, uint16_t value)
 {
 	usb_config = value;
 
-	/* GDB interface */
-#if defined(STM32F4) || defined(LM4F) || defined(STM32F7)
-	usbd_ep_setup(dev, CDCACM_GDB_ENDPOINT, USB_ENDPOINT_ATTR_BULK, CDCACM_PACKET_SIZE, gdb_usb_out_cb);
-#else
-	usbd_ep_setup(dev, CDCACM_GDB_ENDPOINT, USB_ENDPOINT_ATTR_BULK, CDCACM_PACKET_SIZE, NULL);
-#endif
-	usbd_ep_setup(dev, CDCACM_GDB_ENDPOINT | USB_REQ_TYPE_IN, USB_ENDPOINT_ATTR_BULK, CDCACM_PACKET_SIZE, NULL);
-	usbd_ep_setup(dev, (CDCACM_GDB_ENDPOINT + 1U) | USB_REQ_TYPE_IN, USB_ENDPOINT_ATTR_INTERRUPT, 16, NULL);
-
 	/* Serial interface */
 	usbd_ep_setup(
 		dev, CDCACM_UART_ENDPOINT, USB_ENDPOINT_ATTR_BULK, CDCACM_PACKET_SIZE / 2U, debug_serial_receive_callback);
@@ -198,10 +189,6 @@ void usb_serial_set_config(usbd_device *dev, uint16_t value)
 		debug_serial_send_callback);
 	usbd_ep_setup(dev, (CDCACM_UART_ENDPOINT + 1U) | USB_REQ_TYPE_IN, USB_ENDPOINT_ATTR_INTERRUPT, 16, NULL);
 
-#ifdef PLATFORM_HAS_TRACESWO
-	/* Trace interface */
-	usbd_ep_setup(dev, TRACE_ENDPOINT | USB_REQ_TYPE_IN, USB_ENDPOINT_ATTR_BULK, TRACE_ENDPOINT_SIZE, trace_buf_drain);
-#endif
 
 	usbd_register_control_callback(dev, USB_REQ_TYPE_CLASS | USB_REQ_TYPE_INTERFACE,
 		USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT, debug_serial_control_request);
