@@ -55,8 +55,6 @@ VPATH +=                          \
 
 SRC +=               \
 	blackpill-f4.c   \
-	traceswodecode.c \
-	traceswo.c       \
 	serialno.c       \
 	timing.c         \
 	timing_stm32.c

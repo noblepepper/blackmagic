@@ -24,8 +24,6 @@ SRC +=          \
 	serialno.c	\
 	timing.c	\
 	timing_stm32.c	\
-	traceswodecode.c	\
-	traceswoasync.c	\
 	platform_common.c \
 
 all:	blackmagic.bin

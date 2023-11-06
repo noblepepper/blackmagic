@@ -50,10 +50,6 @@ TARGET = blackmagic.elf
 endif
 endif
 
-ifdef NO_OWN_LL
-SRC += jtagtap_generic.c swdptap_generic.c
-endif
-
 ifdef PC_HOSTED
 CFLAGS += -DPC_HOSTED=1
 else
