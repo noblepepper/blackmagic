@@ -4,9 +4,10 @@ OBJCOPY = $(CROSS_COMPILE)objcopy
 
 CFLAGS += -mcpu=cortex-m3 -mthumb \
 	-DSTM32F1  -I../libopencm3/include \
-	-I platforms/common/stm32
+	-I platforms/common/stm32 -Iinclude \
+	-I platforms/bluepill
 LDFLAGS_BOOT := $(LDFLAGS) --specs=nano.specs -lopencm3_stm32f1 \
-	-Wl,-T,platforms/swlink/swlink.ld -nostartfiles -lc\
+	-Wl,-T,platforms/bluepill/bluepill.ld -nostartfiles -lc\
 	-Wl,-Map=mapfile -mthumb -mcpu=cortex-m3 -Wl,-gc-sections \
 	-L../libopencm3/lib
 LDFLAGS = $(LDFLAGS_BOOT) -Wl,-Ttext=0x8002000

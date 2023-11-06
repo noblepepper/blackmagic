@@ -20,10 +20,6 @@ ifeq (filter, macosx darwin, $(SYS))
 CFLAGS += -Wmaybe-uninitialized -Wstringop-overflow -Wunsafe-loop-optimizations
 endif
 
-ifeq ($(ENABLE_DEBUG), 1)
-CFLAGS += -DENABLE_DEBUG
-endif
-
 SRC =              \
 	main.c         \
 
@@ -31,38 +27,16 @@ ifeq (,$(filter all_platforms,$(MAKECMDGOALS)))
 include $(PLATFORM_DIR)/Makefile.inc
 endif
 
-ifneq ($(PC_HOSTED),1)
-# Output memory usage information
-LDFLAGS += -Wl,--print-memory-usage
-endif
-
 OPT_FLAGS ?= -Os
 CFLAGS += $(OPT_FLAGS)
 LDFLAGS += $(OPT_FLAGS)
 
 ifndef TARGET
-ifdef PC_HOSTED
-TARGET = blackmagic
-else
 TARGET = blackmagic.elf
 endif
-endif
 
-ifdef PC_HOSTED
-CFLAGS += -DPC_HOSTED=1
-else
 CFLAGS += -DPC_HOSTED=0
 include platforms/common/Makefile.inc
-endif
-
-ifeq ($(ENABLE_RTT), 1)
-CFLAGS += -DENABLE_RTT
-SRC += rtt.c rtt_if.c
-endif
-
-ifdef RTT_IDENT
-CFLAGS += -DRTT_IDENT=$(RTT_IDENT)
-endif
 
 ifeq ($(ADVERTISE_NOACKMODE), 1)
 CFLAGS += -DADVERTISE_NOACKMODE=1
@@ -82,7 +56,6 @@ $(TARGET): include/version.h $(OBJ)
 	@echo "  AS      $<"
 	$(Q)$(CC) $(CFLAGS) -c $< -o $@
 
-ifndef PC_HOSTED
 %.bin:	%.elf
 	@echo "  OBJCOPY $@"
 	$(Q)$(OBJCOPY) -O binary $^ $@
@@ -90,7 +63,6 @@ ifndef PC_HOSTED
 %.hex:	%.elf
 	@echo "  OBJCOPY $@"
 	$(Q)$(OBJCOPY) -O ihex $^ $@
-endif
 
 .PHONY:	clean host_clean all_platforms clang-format FORCE
 

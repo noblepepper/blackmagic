@@ -18,20 +18,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Provides main entry point. Initialise subsystems and enter GDB protocol loop. */
+/* Provides main entry point. Initialise subsystems */
 
 #include "general.h"
 #include "platform.h"
 
 int main(int argc, char **argv)
 {
-#if PC_HOSTED == 1
-	platform_init(argc, argv);
-#else
 	(void)argc;
 	(void)argv;
 	platform_init();
-#endif
 
 	while (true) {
 		asm("nop");

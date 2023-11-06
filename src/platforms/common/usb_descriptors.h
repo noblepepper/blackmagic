@@ -249,43 +249,6 @@ static const struct {
 		},
 };
 
-static const microsoft_os_descriptor_function_subset_header microsoft_os_descriptor_function_subsets[] = {
-	{
-		.wLength = MICROSOFT_OS_DESCRIPTOR_FUNCTION_SUBSET_HEADER_SIZE,
-		.wDescriptorType = MICROSOFT_OS_SUBSET_HEADER_FUNCTION,
-		.bFirstInterface = DFU_IF_NO,
-		.bReserved = 0,
-		.wTotalLength = 0,
-
-		.feature_descriptors = &microsoft_os_dfu_if_features,
-		.num_feature_descriptors = 2,
-	},
-};
-
-static const microsoft_os_descriptor_config_subset_header microsoft_os_descriptor_config_subset = {
-	.wLength = MICROSOFT_OS_DESCRIPTOR_CONFIG_SUBSET_HEADER_SIZE,
-	.wDescriptorType = MICROSOFT_OS_SUBSET_HEADER_CONFIGURATION,
-	.bConfigurationValue = 0,
-	.bReserved = 0,
-	.wTotalLength = 0,
-
-	.function_subset_headers = microsoft_os_descriptor_function_subsets,
-	.num_function_subset_headers = ARRAY_LENGTH(microsoft_os_descriptor_function_subsets),
-};
-
-static const microsoft_os_descriptor_set_header microsoft_os_descriptor_sets[DESCRIPTOR_SETS] = {
-	{
-		.wLength = MICROSOFT_OS_DESCRIPTOR_SET_HEADER_SIZE,
-		.wDescriptorType = MICROSOFT_OS_SET_HEADER,
-		.dwWindowsVersion = MICROSOFT_WINDOWS_VERSION_WINBLUE,
-		.wTotalLength = 0,
-
-		.vendor_code = 1,
-		.num_config_subset_headers = 1,
-		.config_subset_headers = &microsoft_os_descriptor_config_subset,
-	},
-};
-
 static const microsoft_os_descriptor_set_information microsoft_os_descriptor_set_info = {
 	.dwWindowsVersion = MICROSOFT_WINDOWS_VERSION_WINBLUE,
 	.wMSOSDescriptorSetTotalLength = MICROSOFT_OS_DESCRIPTOR_SET_HEADER_SIZE +

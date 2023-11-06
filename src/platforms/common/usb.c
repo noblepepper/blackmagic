@@ -56,7 +56,6 @@ void blackmagic_usb_init(void)
 		sizeof(usbd_control_buffer));
 
 	usbd_register_bos_descriptor(usbdev, &bos);
-	microsoft_os_register_descriptor_sets(usbdev, microsoft_os_descriptor_sets, DESCRIPTOR_SETS);
 	usbd_register_set_config_callback(usbdev, usb_serial_set_config);
 	usbd_register_set_config_callback(usbdev, usb_config_set_updated);
 

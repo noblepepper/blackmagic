@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* This file provides the platform specific declarations for the "swlink" (ST-Link clones) implementation. */
+/* This file provides the platform specific declarations for the bluepill. */
 
 #ifndef PLATFORMS_SWLINK_PLATFORM_H
 #define PLATFORMS_SWLINK_PLATFORM_H
@@ -61,7 +61,6 @@ extern bool debug_bmp;
 #define IRQ_PRI_USBUSART     (2U << 4U)
 #define IRQ_PRI_USBUSART_DMA (2U << 4U)
 #define IRQ_PRI_USB_VBUS     (14U << 4U)
-#define IRQ_PRI_SWO_DMA      (0U << 4U)
 
 #define USBUSART               USART1
 #define USBUSART_CR1           USART1_CR1

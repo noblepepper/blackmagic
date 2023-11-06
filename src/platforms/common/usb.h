@@ -39,13 +39,9 @@ extern uint16_t usb_config;
 #define USB_MAX_INTERVAL 255U
 #endif
 
-#define CDCACM_GDB_ENDPOINT  1U
 #define CDCACM_UART_ENDPOINT 3U
-#define TRACE_ENDPOINT       5U
 
-#define GDB_IF_NO  0U
 #define UART_IF_NO 2U
-#define DFU_IF_NO  4U
 #define TOTAL_INTERFACES 2U
 
 void blackmagic_usb_init(void);
