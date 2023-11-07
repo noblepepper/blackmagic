@@ -1,46 +1,27 @@
-PROBE_HOST ?= blackpill-f411ce
-PLATFORM_DIR = platforms/$(PROBE_HOST)
+BOARD ?= blackpill-f411ce
+PLATFORM_DIR = platforms/$(BOARD)
 VPATH += $(PLATFORM_DIR) target
-ENABLE_DEBUG ?=
 
-SYS = $(shell $(CC) -dumpmachine)
-
-ifneq ($(V), 1)
-MAKEFLAGS += --no-print-dir
-Q := @
-endif
-
-# CFLAGS += -Wall -Wextra -Werror -Wreturn-type \
-CFLAGS += -Wall -Wextra -Wreturn-type \
+CFLAGS += -Wall -Wextra -Werror -Wreturn-type \
+# CFLAGS += -Wall -Wextra -Wreturn-type \
 	-Wno-char-subscripts \
 	-std=c11 -g3 -MD -I./target \
 	-I. -Iinclude -I$(PLATFORM_DIR)
 
-ifeq (filter, macosx darwin, $(SYS))
-CFLAGS += -Wmaybe-uninitialized -Wstringop-overflow -Wunsafe-loop-optimizations
-endif
-
 SRC =              \
 	main.c         \
 
-ifeq (,$(filter all_platforms,$(MAKECMDGOALS)))
 include $(PLATFORM_DIR)/Makefile.inc
-endif
 
 OPT_FLAGS ?= -Os
 CFLAGS += $(OPT_FLAGS)
 LDFLAGS += $(OPT_FLAGS)
 
 ifndef TARGET
-TARGET = blackmagic.elf
+TARGET = usb-in-out.elf
 endif
 
-CFLAGS += -DPC_HOSTED=0
 include platforms/common/Makefile.inc
-
-ifeq ($(ADVERTISE_NOACKMODE), 1)
-CFLAGS += -DADVERTISE_NOACKMODE=1
-endif
 
 OBJ = $(patsubst %.S,%.o,$(patsubst %.c,%.o,$(SRC)))
 
@@ -66,80 +47,11 @@ $(TARGET): include/version.h $(OBJ)
 
 .PHONY:	clean host_clean all_platforms clang-format FORCE
 
-
-GIT_VERSION := $(shell if [ -e "../.git" ]; then git describe --always --dirty --tags; fi)
-
 clean:	host_clean
 	$(Q)echo "  CLEAN"
 	-$(Q)$(RM) *.o *.d *.elf *~ $(TARGET) $(HOSTFILES)
 	-$(Q)$(RM) platforms/*/*.o platforms/*/*.d mapfile ftd2xx.dll
-ifeq ($(GIT_VERSION),)
-	@echo Git not found, not deleting include/version.h
-else
-	-$(Q)$(RM) include/version.h
-endif
-
-all_platforms:
-	$(Q)if [ ! -f ../libopencm3/Makefile ]; then \
-		echo "Initialising git submodules..." ;\
-		git submodule init ;\
-		git submodule update ;\
-	fi
-	$(Q)$(MAKE) $(MFLAGS) -C ../libopencm3 lib/stm32/f1 lib/stm32/f4 lib/lm4f
-	$(Q)set -e ;\
-	mkdir -p artifacts/$(shell git describe --always --dirty --tags) ;\
-	echo "<html><body><ul>" > artifacts/index.html ;\
-	$(MAKE) clean ;\
-	for i in platforms/*/Makefile.inc ; do \
-		export DIRNAME=`dirname $$i` ;\
-		if [ "$$DIRNAME" = "platforms/common" ]; then \
-			continue; \
-		fi; \
-		export PROBE_HOST=`basename $$DIRNAME` ;\
-		export CFLAGS=-Werror ;\
-		echo "Building for hardware platform: $$PROBE_HOST" ;\
-		$(MAKE);\
-		if [ -f blackmagic ]; then \
-			mv blackmagic artifacts/blackmagic-$$PROBE_HOST ;\
-			echo "<li><a href='blackmagic-$$PROBE_HOST'>$$PROBE_HOST</a></li>"\
-				>> artifacts/index.html ;\
-		fi ;\
-		if [ -f blackmagic.bin ]; then \
-			mv blackmagic.bin artifacts/blackmagic-$$PROBE_HOST.bin ;\
-			echo "<li><a href='blackmagic-$$PROBE_HOST.bin'>$$PROBE_HOST</a></li>"\
-				>> artifacts/index.html ;\
-		fi ;\
-		if [ -f blackmagic_dfu.bin ]; then \
-			mv blackmagic_dfu.bin artifacts/blackmagic_dfu-$$PROBE_HOST.bin ;\
-			echo "<li><a href='blackmagic_dfu-$$PROBE_HOST.bin'>$$PROBE_HOST DFU</a></li>"\
-				>> artifacts/index.html ;\
-		fi ;\
-		$(MAKE) clean ;\
-	done ;\
-	echo "</ul></body></html>" >> artifacts/index.html ;\
-	cp artifacts/blackmagic* artifacts/$(shell git describe --always --dirty --tags)
-
-command.c: include/version.h
-
-VERSION_HEADER := \#define FIRMWARE_VERSION ""
-
-include/version.h: FORCE
-	@# If git isn't found then GIT_VERSION will be an empty string.
-ifeq ($(GIT_VERSION),)
-	@echo Git not found, assuming up to date include/version.h
-else
-	@# Note that when we echo the version to the header file, echo writes a final newline
-	@# to the file. This is fine and probably makes the file more human-readable, but
-	@# also means we have to account for that newline in this comparison.
-	$(Q)if [ ! -f $@ ] || [ "$$(cat $@)" != "$$(echo '$(VERSION_HEADER)\n')" ]; then \
-		echo " GEN      $@"; \
-		echo '$(VERSION_HEADER)' > $@; \
-	fi
-endif
 
 clang-format:
 	$(Q)clang-format -i *.c */*.c */*/*.c *.h */*.h */*/*.h
 
-ifeq (,$(filter clean,$(MAKECMDGOALS)))
--include *.d
-endif

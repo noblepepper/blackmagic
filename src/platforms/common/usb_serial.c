@@ -53,8 +53,6 @@ typedef struct stat stat_s;
 #include <libopencm3/stm32/dma.h>
 #endif
 
-static bool gdb_serial_dtr = true;
-
 static void usb_serial_set_state(usbd_device *dev, uint16_t iface, uint8_t ep);
 
 static void debug_serial_send_callback(usbd_device *dev, uint8_t ep);

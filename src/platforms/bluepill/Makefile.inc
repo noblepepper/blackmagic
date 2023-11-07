@@ -27,7 +27,7 @@ SRC +=          \
 	timing_stm32.c	\
 	platform_common.c \
 
-all:	blackmagic.bin
+all:	usb-in-out.bin
 
 host_clean:
-	-$(Q)$(RM) blackmagic.bin
+	-$(Q)$(RM) usb-in-out.bin

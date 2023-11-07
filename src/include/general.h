@@ -42,10 +42,8 @@
 #include <inttypes.h>
 #include <sys/types.h>
 
-#include "maths_utils.h"
 #include "timing.h"
 #include "platform_support.h"
-#include "align.h"
 
 #ifndef ARRAY_LENGTH
 #define ARRAY_LENGTH(arr) (sizeof(arr) / sizeof((arr)[0]))

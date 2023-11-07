@@ -5,10 +5,6 @@ endif
 
 PC_HOSTED =
 NO_LIBOPENCM3 =
-ifeq ($(PROBE_HOST), hosted)
-	PC_HOSTED = true
-	NO_LIBOPENCM3 = true
-endif
 
 all:
 ifndef NO_LIBOPENCM3

@@ -14,7 +14,7 @@ CFLAGS +=                          	\
 	-DSTM32F4                       \
 	-I../libopencm3/include         \
 	-Iplatforms/common/stm32        \
-	-Iplatforms/$(PROBE_HOST) \
+	-Iplatforms/$(BOARD) \
 	-Iplatforms/common/blackpill-f4
 
 LDFLAGS_BOOT =              \
@@ -60,7 +60,7 @@ SRC +=               \
 	timing_stm32.c
 
 ifneq ($(BMP_BOOTLOADER), 1)
-all:	blackmagic.bin
+all:	usb-in-out.bin
 else
 all:	blackmagic.bin  blackmagic_dfu.bin blackmagic_dfu.hex
 blackmagic_dfu: usbdfu.o dfucore.o dfu_f4.o serialno.o

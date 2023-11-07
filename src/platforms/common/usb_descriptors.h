@@ -28,10 +28,9 @@
 
 #include "usb.h"
 #include "serialno.h"
-#include "version.h"
 #include "usb_types.h"
 
-#define BOARD_IDENT "BlackPill" PLATFORM_IDENT FIRMWARE_VERSION
+#define BOARD_IDENT "BlackPill" PLATFORM_IDENT
 
 /* Top-level device descriptor */
 static const usb_device_descriptor_s dev_desc = {

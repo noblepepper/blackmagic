@@ -31,19 +31,6 @@ bool running_status = false;
 static volatile uint32_t time_ms = 0;
 uint32_t target_clk_divider = 0;
 
-static size_t morse_tick = 0;
-#if defined(PLATFORM_HAS_POWER_SWITCH) && defined(STM32F1)
-static uint8_t monitor_ticks = 0;
-
-/* Derived from calculating (1.2V / 3.0V) * 4096 */
-#define ADC_VREFINT_MAX 1638U
-/*
- * Derived from calculating (1.2V / 3.6V) * 4096 (1365) and
- * then applying an offset to adjust for being 10-20mV over
- */
-#define ADC_VREFINT_MIN 1404U
-#endif
-
 void platform_timing_init(void)
 {
 	/* Setup heartbeat timer */
