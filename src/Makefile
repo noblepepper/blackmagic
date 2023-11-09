@@ -2,14 +2,15 @@ BOARD ?= blackpill-f411ce
 PLATFORM_DIR = platforms/$(BOARD)
 VPATH += $(PLATFORM_DIR) target
 
-CFLAGS += -Wall -Wextra -Werror -Wreturn-type \
-# CFLAGS += -Wall -Wextra -Wreturn-type \
+# CFLAGS += -Wall -Wextra -Werror -Wreturn-type \
+CFLAGS += -Wall -Wextra -Wreturn-type \
 	-Wno-char-subscripts \
 	-std=c11 -g3 -MD -I./target \
 	-I. -Iinclude -I$(PLATFORM_DIR)
 
 SRC =              \
 	main.c         \
+	usbwrap.c         \
 
 include $(PLATFORM_DIR)/Makefile.inc
 

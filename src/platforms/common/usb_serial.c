@@ -44,6 +44,7 @@ typedef struct stat stat_s;
 #include "usb_serial.h"
 #include "aux_serial.h"
 #include "usb_types.h"
+#include "usbwrap.h"
 
 #include <libopencm3/cm3/cortex.h>
 #include <libopencm3/cm3/nvic.h>
@@ -130,15 +131,22 @@ void usb_serial_set_config(usbd_device *dev, uint16_t value)
 	usb_config = value;
 
 	/* Serial interface */
-	usbd_ep_setup(
-		dev, CDCACM_UART_ENDPOINT, USB_ENDPOINT_ATTR_BULK, CDCACM_PACKET_SIZE / 2U, debug_serial_receive_callback);
-	usbd_ep_setup(dev, CDCACM_UART_ENDPOINT | USB_REQ_TYPE_IN, USB_ENDPOINT_ATTR_BULK, CDCACM_PACKET_SIZE,
-		debug_serial_send_callback);
-	usbd_ep_setup(dev, (CDCACM_UART_ENDPOINT + 1U) | USB_REQ_TYPE_IN, USB_ENDPOINT_ATTR_INTERRUPT, 16, NULL);
+	usbd_ep_setup( \
+		dev, CDCACM_UART_ENDPOINT, USB_ENDPOINT_ATTR_BULK, \
+		CDCACM_PACKET_SIZE / 2U, read_from_usb);
+	usbd_ep_setup( \
+		dev, CDCACM_UART_ENDPOINT | USB_REQ_TYPE_IN, \
+		USB_ENDPOINT_ATTR_BULK, CDCACM_PACKET_SIZE, \
+		send_to_usb);
+	usbd_ep_setup( \
+		dev, (CDCACM_UART_ENDPOINT + 1U) | USB_REQ_TYPE_IN, \
+		USB_ENDPOINT_ATTR_INTERRUPT, 16, NULL);
 
 
-	usbd_register_control_callback(dev, USB_REQ_TYPE_CLASS | USB_REQ_TYPE_INTERFACE,
-		USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT, debug_serial_control_request);
+	usbd_register_control_callback(\
+		dev, USB_REQ_TYPE_CLASS | USB_REQ_TYPE_INTERFACE, \
+		USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT, \
+		debug_serial_control_request);
 	/* Notify the host that DCD is asserted.
 	 * Allows the use of /dev/tty* devices on *BSD/MacOS
 	 */
@@ -242,23 +250,9 @@ static void debug_serial_send_callback(usbd_device *dev, uint8_t ep)
 
 static void debug_serial_receive_callback(usbd_device *dev, uint8_t ep)
 {
-#ifdef ENABLE_RTT
-	if (rtt_enabled) {
-		rtt_serial_receive_callback(dev, ep);
-		return;
-	}
-#endif
-
 	char *const transmit_buffer = aux_serial_current_transmit_buffer() + aux_serial_transmit_buffer_fullness();
 	const uint16_t len = usbd_ep_read_packet(dev, ep, transmit_buffer, CDCACM_PACKET_SIZE);
 
-#if defined(BLACKMAGIC)
-	/* Don't bother if uart is disabled.
-	 * This will be the case on mini while we're being debugged.
-	 */
-	if (!(RCC_APB2ENR & RCC_APB2ENR_USART1EN) && !(RCC_APB1ENR & RCC_APB1ENR_USART2EN))
-		return;
-#endif
 
 	aux_serial_send(len);
 

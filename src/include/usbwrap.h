@@ -1,7 +1,7 @@
 /*
  * This file is part of the Black Magic Debug project.
  *
- * Copyright (C) 2011  Black Sphere Technologies Ltd.
+ * Copyright (C) 2012  Black Sphere Technologies Ltd.
  * Written by Gareth McMullin <gareth@blacksphere.co.nz>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,30 +17,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef __USBUART_H
+#define __USBUART_H
 
-/* Provides main entry point. Initialise subsystems */
+#include <libopencm3/usb/usbd.h>
+#include <libopencm3/usb/cdc.h>
 
-#include "general.h"
-#include "platform.h"
-#include "usbwrap.h"
-#include <libopencm3/stm32/usart.h>
+extern char buf_usb_in[256];
+extern int usb_data_count;
 
-int main(int argc, char **argv)
-{
-	(void)argc;
-	(void)argv;
-	platform_init();
+uint16_t usb_recv_blocking(void);
+void usb_send_blocking(uint16_t data);
 
-	while (true) {
-		if (usb_data_waiting())
-			usart_send_blocking(USBUSART, usb_recv_blocking());
-		if (usart_data_waiting(USBUSART))
-		{
-			usb_send_blocking('a');
-			usb_send_blocking(usart_recv(USBUSART));
-		}
-		asm("nop");
-	}
+bool usb_data_waiting(void);
+bool usart_data_waiting(uint32_t port);
 
-	return 0;
-}
+void usbuart_init(void);
+
+void usbuart_set_line_coding(struct usb_cdc_line_coding *coding, int USBUSART);
+void read_from_usb(usbd_device *dev, uint8_t ep);
+void send_to_usb(usbd_device *dev, uint8_t ep);
+
+#endif
