@@ -47,27 +47,6 @@ void platform_init(void)
 	rcc_periph_clock_enable(RCC_GPIOC);
 	rcc_periph_clock_enable(RCC_GPIOB);
 
-#ifndef BMP_BOOTLOADER
-	/* Blackpill board has a floating button on PA0. Pull it up and use as active-low. */
-	gpio_mode_setup(USER_BUTTON_KEY_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, USER_BUTTON_KEY_PIN);
-
-	/* Check the USER button */
-	if (!gpio_get(USER_BUTTON_KEY_PORT, USER_BUTTON_KEY_PIN) || (magic[0] == BOOTMAGIC0 && magic[1] == BOOTMAGIC1)) {
-		magic[0] = 0;
-		magic[1] = 0;
-		/* Assert blue LED as indicator we are in the bootloader */
-		gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_BOOTLOADER);
-		gpio_set(LED_PORT, LED_BOOTLOADER);
-		/*
-		 * Jump to the built in bootloader by mapping System flash.
-		 * As we just come out of reset, no other deinit is needed!
-		 */
-		rcc_periph_clock_enable(RCC_SYSCFG);
-		SYSCFG_MEMRM &= ~3U;
-		SYSCFG_MEMRM |= 1U;
-		scb_reset_core();
-	}
-#endif
 	rcc_clock_setup_pll(&rcc_hse_25mhz_3v3[PLATFORM_CLOCK_FREQ]);
 
 	/* Enable peripherals */
@@ -85,10 +64,6 @@ void platform_init(void)
 	gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_IDLE_RUN | LED_ERROR | LED_BOOTLOADER);
 	gpio_mode_setup(LED_PORT_UART, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_UART);
 
-#ifdef PLATFORM_HAS_POWER_SWITCH
-	gpio_clear(PWR_BR_PORT, PWR_BR_PIN); // Set the pin of the given GPIO port to 0.
-	gpio_mode_setup(PWR_BR_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, PWR_BR_PIN);
-#endif
 
 	platform_timing_init();
 	blackmagic_usb_init();

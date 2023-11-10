@@ -36,7 +36,6 @@ int main(int argc, char **argv)
 			usart_send_blocking(USBUSART, usb_recv_blocking());
 		if (usart_data_waiting(USBUSART))
 		{
-			usb_send_blocking('a');
 			usb_send_blocking(usart_recv(USBUSART));
 		}
 		asm("nop");

@@ -18,17 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(STM32F0) || defined(STM32F1) || defined(STM32F3) || defined(STM32F4) || defined(STM32F7)
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/stm32/dma.h>
 #include <libopencm3/cm3/cortex.h>
-#elif defined(LM4F)
-#include <libopencm3/lm4f/rcc.h>
-#include <libopencm3/lm4f/uart.h>
-#else
-#error "Unknown processor target"
-#endif
 #include <libopencm3/cm3/nvic.h>
 
 #include "general.h"
@@ -139,7 +132,7 @@ void aux_serial_init(void)
 #endif
 
 	/* Setup USART RX DMA */
-	dma_channel_reset(USBUSART_DMA_BUS, USBUSART_DMA_RX_CHAN);
+/*	dma_channel_reset(USBUSART_DMA_BUS, USBUSART_DMA_RX_CHAN);
 	dma_set_peripheral_address(USBUSART_DMA_BUS, USBUSART_DMA_RX_CHAN, (uintptr_t)&USBUSART_RDR);
 	dma_set_memory_address(USBUSART_DMA_BUS, USBUSART_DMA_RX_CHAN, (uintptr_t)aux_serial_receive_buffer);
 	dma_set_number_of_data(USBUSART_DMA_BUS, USBUSART_DMA_RX_CHAN, AUX_UART_BUFFER_SIZE);
@@ -159,9 +152,9 @@ void aux_serial_init(void)
 	dma_set_read_from_peripheral(USBUSART_DMA_BUS, USBUSART_DMA_RX_CHAN);
 #endif
 	dma_enable_channel(USBUSART_DMA_BUS, USBUSART_DMA_RX_CHAN);
-
+*/
 	/* Enable interrupts */
-	nvic_set_priority(USBUSART_IRQ, IRQ_PRI_USBUSART);
+/*	nvic_set_priority(USBUSART_IRQ, IRQ_PRI_USBUSART);
 #if defined(USBUSART_DMA_RXTX_IRQ)
 	nvic_set_priority(USBUSART_DMA_RXTX_IRQ, IRQ_PRI_USBUSART_DMA);
 #else
@@ -175,7 +168,7 @@ void aux_serial_init(void)
 	nvic_enable_irq(USBUSART_DMA_TX_IRQ);
 	nvic_enable_irq(USBUSART_DMA_RX_IRQ);
 #endif
-
+*/
 	/* Finally enable the USART */
 	usart_enable(USBUSART);
 	usart_enable_tx_dma(USBUSART);
