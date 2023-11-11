@@ -42,36 +42,9 @@ volatile uint32_t magic[2] __attribute__((section(".noinit")));
 
 void platform_init(void)
 {
-	/* Enable GPIO peripherals */
-	rcc_periph_clock_enable(RCC_GPIOA);
-	rcc_periph_clock_enable(RCC_GPIOC);
-	rcc_periph_clock_enable(RCC_GPIOB);
-
-	rcc_clock_setup_pll(&rcc_hse_25mhz_3v3[PLATFORM_CLOCK_FREQ]);
-
-	/* Enable peripherals */
-	rcc_periph_clock_enable(RCC_OTGFS);
-	rcc_periph_clock_enable(RCC_CRC);
-
-	/* Set up DM/DP pins. PA9/PA10 are not routed to USB-C. */
-	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11 | GPIO12);
-	gpio_set_af(GPIOA, GPIO_AF10, GPIO11 | GPIO12);
-
-	GPIOA_OSPEEDR &= 0x3c00000cU;
-	GPIOA_OSPEEDR |= 0x28000008U;
-
 	/* Set up LED pins */
 	gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_IDLE_RUN | LED_ERROR | LED_BOOTLOADER);
 	gpio_mode_setup(LED_PORT_UART, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_UART);
-
-
-	platform_timing_init();
-	blackmagic_usb_init();
-	aux_serial_init();
-
-	/* https://github.com/libopencm3/libopencm3/pull/1256#issuecomment-779424001 */
-	OTG_FS_GCCFG |= OTG_GCCFG_NOVBUSSENS | OTG_GCCFG_PWRDWN;
-	OTG_FS_GCCFG &= ~(OTG_GCCFG_VBUSBSEN | OTG_GCCFG_VBUSASEN);
 }
 
 const char *platform_target_voltage(void)

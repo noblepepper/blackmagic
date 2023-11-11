@@ -23,13 +23,18 @@
 #include "general.h"
 #include "platform.h"
 #include "usbwrap.h"
+#include "setup.h"
 #include <libopencm3/stm32/usart.h>
 
 int main(int argc, char **argv)
 {
 	(void)argc;
 	(void)argv;
-	platform_init();
+	clock_setup();
+	systick_setup();
+	usb_setup();
+	usart_setup();
+	gpio_setup();
 
 	while (true) {
 		if (usb_data_waiting())

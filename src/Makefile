@@ -8,9 +8,11 @@ CFLAGS += -Wall -Wextra -Wreturn-type \
 	-std=c11 -g3 -MD -I./target \
 	-I. -Iinclude -I$(PLATFORM_DIR)
 
-SRC =              \
-	main.c         \
+SRC =                     \
+	main.c            \
 	usbwrap.c         \
+	setup.c           \
+
 
 include $(PLATFORM_DIR)/Makefile.inc
 
@@ -50,7 +52,7 @@ $(TARGET): include/version.h $(OBJ)
 
 clean:	host_clean
 	$(Q)echo "  CLEAN"
-	-$(Q)$(RM) *.o *.d *.elf *~ $(TARGET) $(HOSTFILES)
+	-$(Q)$(RM) *.o *.d *.elf *.bin *~ $(TARGET) $(HOSTFILES)
 	-$(Q)$(RM) platforms/*/*.o platforms/*/*.d mapfile ftd2xx.dll
 
 clang-format:

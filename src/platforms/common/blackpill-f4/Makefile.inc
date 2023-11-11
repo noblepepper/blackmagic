@@ -57,7 +57,7 @@ SRC +=               \
 	blackpill-f4.c   \
 	serialno.c       \
 	timing.c         \
-	timing_stm32.c
+#	timing_stm32.c
 
 ifneq ($(BMP_BOOTLOADER), 1)
 all:	usb-in-out.bin
