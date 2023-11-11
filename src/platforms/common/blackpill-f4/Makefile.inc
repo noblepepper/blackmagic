@@ -17,7 +17,7 @@ CFLAGS +=                          	\
 	-Iplatforms/$(BOARD) \
 	-Iplatforms/common/blackpill-f4
 
-LDFLAGS_BOOT =              \
+LDFLAGS +=                      \
 	-lopencm3_stm32f4       \
 	-Wl,-T,$(LINKER_SCRIPT) \
 	-nostartfiles           \
@@ -31,23 +31,7 @@ LDFLAGS_BOOT =              \
 	-mfpu=fpv4-sp-d16       \
 	-L../libopencm3/lib
 
-ifeq ($(BMP_BOOTLOADER), 1)
-$(info  Load address 0x08004000 for BMPBootloader)
-LDFLAGS = $(LDFLAGS_BOOT) -Wl,-Ttext=0x8004000
-CFLAGS += -DAPP_START=0x08004000 -DBMP_BOOTLOADER
-CFLAGS += -DDFU_SERIAL_LENGTH=9
-else
-LDFLAGS += $(LDFLAGS_BOOT)
 CFLAGS += -DDFU_SERIAL_LENGTH=13
-endif
-
-ifdef ALTERNATIVE_PINOUT
-CFLAGS += -DALTERNATIVE_PINOUT=$(ALTERNATIVE_PINOUT)
-endif
-
-ifdef SHIELD
-CFLAGS += -DSHIELD=$(SHIELD)
-endif
 
 VPATH +=                          \
 	platforms/common/stm32        \
@@ -56,21 +40,8 @@ VPATH +=                          \
 SRC +=               \
 	blackpill-f4.c   \
 	serialno.c       \
-	timing.c         \
-#	timing_stm32.c
 
-ifneq ($(BMP_BOOTLOADER), 1)
-all:	usb-in-out.bin
-else
-all:	blackmagic.bin  blackmagic_dfu.bin blackmagic_dfu.hex
-blackmagic_dfu: usbdfu.o dfucore.o dfu_f4.o serialno.o
-	$(CC) $^ -o $@ $(LDFLAGS_BOOT)
+all:	usb-in-out.bin 
 
-blackmagic_dfu.bin:    blackmagic_dfu
-	$(OBJCOPY) -O binary $^ $@
-
-blackmagic_dfu.hex:    blackmagic_dfu
-	$(OBJCOPY) -O ihex $^ $@
-endif
 host_clean:
-	-$(Q)$(RM) blackmagic.bin
+	-$(Q)$(RM) usb-in-out.bin

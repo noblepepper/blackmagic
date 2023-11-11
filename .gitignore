@@ -31,3 +31,4 @@ prebuilt*
 .project
 .cproject
 .settings
+cscope*

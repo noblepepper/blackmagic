@@ -107,14 +107,6 @@ void systick_setup(void)
 	systick_counter_enable();
 }
 
-void platform_delay(uint32_t ms)
-{
-	platform_timeout_s timeout;
-	platform_timeout_set(&timeout, ms);
-	while (!platform_timeout_is_expired(&timeout))
-		continue;
-}
-
 void sys_tick_handler(void)
 {
 	time_ms += SYSTICKMS;
