@@ -28,13 +28,7 @@
 #endif
 
 #define SYSTICKMS (1000U / SYSTICKHZ)
-#define MORSECNT  ((SYSTICKHZ / 10U) - 1U)
 
-struct platform_timeout {
-	uint32_t time;
-};
-
-extern uint32_t target_clk_divider;
 uint32_t platform_time_ms(void);
 
 #endif /* INCLUDE_TIMING_H */

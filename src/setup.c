@@ -40,64 +40,32 @@
 #include <libopencm3/usb/dwc/otg_fs.h>
 #include <libopencm3/stm32/spi.h>
 
+
+#define SYSTICKHZ 1000U
+
+#define SYSTICKMS (1000U / SYSTICKHZ)
+
 static volatile uint32_t time_ms = 0;
 
 void clock_setup(void)
 {
+	/* main clock 96Mhz */
+	rcc_clock_setup_pll(&rcc_hse_25mhz_3v3[PLATFORM_CLOCK_FREQ]);
+
 	/* Enable GPIO peripherals */
 	rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_GPIOC);
 	rcc_periph_clock_enable(RCC_GPIOB);
 
-	rcc_clock_setup_pll(&rcc_hse_25mhz_3v3[PLATFORM_CLOCK_FREQ]);
-
-	/* Enable peripherals */
+	/* Enable usb peripherals */
 	rcc_periph_clock_enable(RCC_OTGFS);
 	rcc_periph_clock_enable(RCC_CRC);
-}
-
-static bool usb_config_updated = true;
-
-static void usb_config_set_updated(usbd_device *const dev, const uint16_t value)
-{
-	(void)dev;
-	(void)value;
-	usb_config_updated = true;
-}
-
-void usb_setup(void)
-{
-/* We need a special large control buffer for this device: */
-static uint8_t usbd_control_buffer[512];
-
-	/* Set up DM/DP pins. PA9/PA10 are not routed to USB-C. */
-	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11 | GPIO12);
-	gpio_set_af(GPIOA, GPIO_AF10, GPIO11 | GPIO12);
-
-	GPIOA_OSPEEDR &= 0x3c00000cU;
-	GPIOA_OSPEEDR |= 0x28000008U;
-	read_serial_number();
-
-	usbdev = usbd_init(&USB_DRIVER, &dev_desc, &config, usb_strings,
-		 ARRAY_LENGTH(usb_strings), usbd_control_buffer,
-		 sizeof(usbd_control_buffer));
-
-	usbd_register_bos_descriptor(usbdev, &bos);
-	usbd_register_set_config_callback(usbdev, usb_serial_set_config);
-	usbd_register_set_config_callback(usbdev, usb_config_set_updated);
-
-	nvic_set_priority(USB_IRQ, IRQ_PRI_USB);
-	nvic_enable_irq(USB_IRQ);
-	
-	/* https://github.com/libopencm3/libopencm3/pull/1256#issuecomment-779424001 */
-	OTG_FS_GCCFG |= OTG_GCCFG_NOVBUSSENS | OTG_GCCFG_PWRDWN;
-	OTG_FS_GCCFG &= ~(OTG_GCCFG_VBUSBSEN | OTG_GCCFG_VBUSASEN);
-
 }
 
 void systick_setup(void)
 {
 	/* Setup heartbeat timer */
+	/* 12 Mhz */
 	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB_DIV8);
 	/* Interrupt us at 100 Hz */
 	systick_set_reload(rcc_ahb_frequency / (8U * SYSTICKHZ));
@@ -110,11 +78,6 @@ void systick_setup(void)
 void sys_tick_handler(void)
 {
 	time_ms += SYSTICKMS;
-}
-
-uint32_t platform_time_ms(void)
-{
-	return time_ms;
 }
 
 void usart_setup(void)
@@ -142,6 +105,43 @@ void usart_setup(void)
 void gpio_setup(void)
 {
 	/* Set up LED pins */
-	gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_IDLE_RUN | LED_ERROR | LED_BOOTLOADER);
-	gpio_mode_setup(LED_PORT_UART, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_UART);
+}
+
+static bool usb_config_updated = true;
+
+static void usb_config_set_updated(usbd_device *const dev, const uint16_t value)
+{
+	(void)dev;
+	(void)value;
+	usb_config_updated = true;
+}
+
+void usb_setup(void)
+{
+/* We need a special large control buffer for this device: */
+static uint8_t usbd_control_buffer[512];
+
+	/* Set up DM/DP pins. PA9/PA10 are not routed to USB-C. */
+	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11 | GPIO12);
+	gpio_set_af(GPIOA, GPIO_AF10, GPIO11 | GPIO12);
+
+	GPIOA_OSPEEDR &= 0x3c00000cU;
+	GPIOA_OSPEEDR |= 0x28000008U;
+//	read_serial_number();
+
+	usbdev = usbd_init(&USB_DRIVER, &dev_desc, &config, usb_strings,
+		 ARRAY_LENGTH(usb_strings), usbd_control_buffer,
+		 sizeof(usbd_control_buffer));
+
+	usbd_register_bos_descriptor(usbdev, &bos);
+	usbd_register_set_config_callback(usbdev, usb_serial_set_config);
+	usbd_register_set_config_callback(usbdev, usb_config_set_updated);
+
+	nvic_set_priority(USB_IRQ, IRQ_PRI_USB);
+	nvic_enable_irq(USB_IRQ);
+	
+	/* https://github.com/libopencm3/libopencm3/pull/1256#issuecomment-779424001 */
+	OTG_FS_GCCFG |= OTG_GCCFG_NOVBUSSENS | OTG_GCCFG_PWRDWN;
+	OTG_FS_GCCFG &= ~(OTG_GCCFG_VBUSBSEN | OTG_GCCFG_VBUSASEN);
+
 }

@@ -19,6 +19,8 @@ include $(PLATFORM_DIR)/Makefile.inc
 OPT_FLAGS ?= -Os
 CFLAGS += $(OPT_FLAGS)
 LDFLAGS += $(OPT_FLAGS)
+# Output memory usage information
+LDFLAGS += -Wl,--print-memory-usage
 
 ifndef TARGET
 TARGET = usb-in-out.elf
