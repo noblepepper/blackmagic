@@ -43,7 +43,6 @@
 #include <sys/types.h>
 
 #include "timing.h"
-#include "platform_support.h"
 
 #ifndef ARRAY_LENGTH
 #define ARRAY_LENGTH(arr) (sizeof(arr) / sizeof((arr)[0]))

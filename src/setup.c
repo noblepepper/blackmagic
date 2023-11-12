@@ -38,7 +38,6 @@
 #include <libopencm3/cm3/systick.h>
 #include <libopencm3/cm3/cortex.h>
 #include <libopencm3/usb/dwc/otg_fs.h>
-#include <libopencm3/stm32/spi.h>
 
 
 #define SYSTICKHZ 1000U

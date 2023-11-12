@@ -38,7 +38,6 @@ VPATH +=                          \
 	platforms/common/blackpill-f4
 
 SRC +=               \
-	blackpill-f4.c   \
 	serialno.c       \
 
 all:	usb-in-out.bin 
