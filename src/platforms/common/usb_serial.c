@@ -194,108 +194,6 @@ static bool debug_serial_fifo_buffer_empty(void)
 }
 #endif
 
-#if defined(STM32F0) || defined(STM32F1) || defined(STM32F3) || defined(STM32F4) || defined(STM32F7)
-/*
- * Runs deferred processing for AUX serial RX, draining RX FIFO by sending
- * characters to host PC via the debug serial interface.
- */
-static void debug_serial_send_data(void)
-{
-	debug_serial_send_complete = false;
-	aux_serial_update_receive_buffer_fullness();
-
-	/* Forcibly empty fifo if no USB endpoint.
-	 * If fifo empty, nothing further to do. */
-	if (usb_get_config() != 1 ||
-		(aux_serial_receive_buffer_empty()
-#if defined(ENABLE_DEBUG) && defined(PLATFORM_HAS_DEBUG)
-			&& debug_serial_fifo_buffer_empty()
-#endif
-				)) {
-#if defined(ENABLE_DEBUG) && defined(PLATFORM_HAS_DEBUG)
-		debug_serial_debug_read_index = debug_serial_debug_write_index;
-#endif
-		aux_serial_drain_receive_buffer();
-		debug_serial_send_complete = true;
-	} else {
-#if defined(ENABLE_DEBUG) && defined(PLATFORM_HAS_DEBUG)
-		debug_serial_debug_read_index = debug_serial_fifo_send(
-			debug_serial_debug_buffer, debug_serial_debug_read_index, debug_serial_debug_write_index);
-#endif
-		aux_serial_stage_receive_buffer();
-	}
-}
-
-void debug_serial_run(void)
-{
-	nvic_disable_irq(USB_IRQ);
-	aux_serial_set_led(AUX_SERIAL_LED_RX);
-
-	/* Try to send a packet if usb is idle */
-	if (debug_serial_send_complete)
-		debug_serial_send_data();
-
-	nvic_enable_irq(USB_IRQ);
-}
-#endif
-
-static void debug_serial_send_callback(usbd_device *dev, uint8_t ep)
-{
-	(void)ep;
-	(void)dev;
-#if defined(STM32F0) || defined(STM32F1) || defined(STM32F3) || defined(STM32F4) || defined(STM32F7)
-	debug_serial_send_data();
-#endif
-}
-
-static void debug_serial_receive_callback(usbd_device *dev, uint8_t ep)
-{
-	char *const transmit_buffer = aux_serial_current_transmit_buffer() + aux_serial_transmit_buffer_fullness();
-	const uint16_t len = usbd_ep_read_packet(dev, ep, transmit_buffer, CDCACM_PACKET_SIZE);
-
-
-	aux_serial_send(len);
-
-#if defined(STM32F0) || defined(STM32F1) || defined(STM32F3) || defined(STM32F4) || defined(STM32F7)
-	/* Disable USBUART TX packet reception if buffer does not have enough space */
-	if (AUX_UART_BUFFER_SIZE - aux_serial_transmit_buffer_fullness() < CDCACM_PACKET_SIZE)
-		usbd_ep_nak_set(dev, ep, 1);
-#endif
-}
-
-#ifdef ENABLE_DEBUG
-#ifdef PLATFORM_HAS_DEBUG
-static void debug_serial_append_char(const char c)
-{
-	debug_serial_debug_buffer[debug_serial_debug_write_index] = c;
-	++debug_serial_debug_write_index;
-	debug_serial_debug_write_index %= AUX_UART_BUFFER_SIZE;
-}
-
-static size_t debug_serial_debug_write(const char *buf, const size_t len)
-{
-	if (nvic_get_active_irq(USB_IRQ) || nvic_get_active_irq(USBUSART_IRQ) || nvic_get_active_irq(USBUSART_DMA_RX_IRQ))
-		return 0;
-
-	CM_ATOMIC_CONTEXT();
-	size_t offset = 0;
-
-	for (;
-		 offset < len && (debug_serial_debug_write_index + 1U) % AUX_UART_BUFFER_SIZE != debug_serial_debug_read_index;
-		 ++offset) {
-		if (buf[offset] == '\n') {
-			debug_serial_append_char('\r');
-
-			if ((debug_serial_debug_write_index + 1U) % AUX_UART_BUFFER_SIZE == debug_serial_debug_read_index)
-				break;
-		}
-		debug_serial_append_char(buf[offset]);
-	}
-
-	debug_serial_run();
-	return offset;
-}
-#endif
 
 /*
  * newlib defines _write as a weak link'd function for user code to override.
@@ -309,12 +207,7 @@ static size_t debug_serial_debug_write(const char *buf, const size_t len)
 int _write(const int file, const void *const ptr, const size_t len)
 {
 	(void)file;
-#ifdef PLATFORM_HAS_DEBUG
-	if (debug_bmp)
-		return debug_serial_debug_write(ptr, len);
-#else
 	(void)ptr;
-#endif
 	return len;
 }
 
@@ -370,67 +263,3 @@ void debug_monitor_handler(void)
 	}
 	__asm__("bx lr");
 }
-#else
-/* This defines stubs for the newlib fake file IO layer for compatability with GCC 12 `-spec=nosys.spec` */
-
-/* NOLINTNEXTLINE(bugprone-reserved-identifier,cert-dcl37-c,cert-dcl51-cpp) */
-int _write(const int file, const void *const buffer, const size_t length)
-{
-	(void)file;
-	(void)buffer;
-	return length;
-}
-
-/* NOLINTNEXTLINE(bugprone-reserved-identifier,cert-dcl37-c,cert-dcl51-cpp) */
-int _read(const int file, void *const buffer, const size_t length)
-{
-	(void)file;
-	(void)buffer;
-	return length;
-}
-
-/* NOLINTNEXTLINE(bugprone-reserved-identifier,cert-dcl37-c,cert-dcl51-cpp) */
-off_t _lseek(const int file, const off_t offset, const int direction)
-{
-	(void)file;
-	(void)offset;
-	(void)direction;
-	return 0;
-}
-
-/* NOLINTNEXTLINE(bugprone-reserved-identifier,cert-dcl37-c,cert-dcl51-cpp) */
-int _fstat(const int file, stat_s *stats)
-{
-	(void)file;
-	memset(stats, 0, sizeof(*stats));
-	return 0;
-}
-
-/* NOLINTNEXTLINE(bugprone-reserved-identifier,cert-dcl37-c,cert-dcl51-cpp) */
-int _isatty(const int file)
-{
-	(void)file;
-	return true;
-}
-
-/* NOLINTNEXTLINE(bugprone-reserved-identifier,cert-dcl37-c,cert-dcl51-cpp) */
-int _close(const int file)
-{
-	(void)file;
-	return 0;
-}
-
-/* NOLINTNEXTLINE(bugprone-reserved-identifier,cert-dcl37-c,cert-dcl51-cpp) */
-pid_t _getpid(void)
-{
-	return 1;
-}
-
-/* NOLINTNEXTLINE(bugprone-reserved-identifier,cert-dcl37-c,cert-dcl51-cpp) */
-int _kill(const int pid, const int signal)
-{
-	(void)pid;
-	(void)signal;
-	return 0;
-}
-#endif
