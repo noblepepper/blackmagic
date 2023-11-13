@@ -1,8 +1,7 @@
 /*
  * This file is part of the Black Magic Debug project.
  *
- * Copyright (C) 2011  Black Sphere Technologies Ltd.
- * Written by Gareth McMullin <gareth@blacksphere.co.nz>
+ * Copyright (C) 2015 Gareth McMullin <gareth@blacksphere.co.nz>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,33 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Provides main entry point. Initialise subsystems */
+#ifndef BOARDS_STM32_TIMING_STM32_H
+#define BOARDS_STM32_TIMING_STM32_H
 
-#include "general.h"
-#include "board.h"
-#include "usbwrap.h"
-#include "setup.h"
-#include <libopencm3/stm32/usart.h>
+#include <stdint.h>
+#include <stdbool.h>
 
-int main(int argc, char **argv)
-{
-	(void)argc;
-	(void)argv;
-	clock_setup();
-	systick_setup();
-	usb_setup();
-	usart_setup();
-	gpio_setup();
+extern bool running_status;
 
-	while (true) {
-		if (usb_data_waiting())
-			usart_send_blocking(USBUSART, usb_recv_blocking());
-		if (usart_data_waiting(USBUSART))
-		{
-			usb_send_blocking(usart_recv(USBUSART));
-		}
-		asm("nop");
-	}
+void platform_timing_init(void);
 
-	return 0;
-}
+#endif /* BOARDS_STM32_TIMING_STM32_H */

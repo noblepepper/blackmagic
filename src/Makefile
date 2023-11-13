@@ -1,12 +1,12 @@
 BOARD ?= blackpill-f411ce
-PLATFORM_DIR = platforms/$(BOARD)
-VPATH += $(PLATFORM_DIR) target
+BOARD_DIR = boards/$(BOARD)
+VPATH += $(BOARD_DIR) target
 
 # CFLAGS += -Wall -Wextra -Werror -Wreturn-type \
 CFLAGS += -Wall -Wextra -Wreturn-type \
 	-Wno-char-subscripts \
 	-std=c11 -g3 -MD -I./target \
-	-I. -Iinclude -I$(PLATFORM_DIR)
+	-I. -Iinclude -I$(BOARD_DIR)
 
 SRC =                     \
 	main.c            \
@@ -14,7 +14,9 @@ SRC =                     \
 	setup.c           \
 
 
-include $(PLATFORM_DIR)/Makefile.inc
+$(info BOARD is $(BOARD))
+$(info BOARD_DIR is $(BOARD_DIR))
+include $(BOARD_DIR)/Makefile.inc
 
 OPT_FLAGS ?= -Os
 CFLAGS += $(OPT_FLAGS)
@@ -26,7 +28,7 @@ ifndef TARGET
 TARGET = usb-in-out.elf
 endif
 
-include platforms/common/Makefile.inc
+include boards/common/Makefile.inc
 
 OBJ = $(patsubst %.S,%.o,$(patsubst %.c,%.o,$(SRC)))
 
@@ -50,12 +52,12 @@ $(TARGET): include/version.h $(OBJ)
 	@echo "  OBJCOPY $@"
 	$(Q)$(OBJCOPY) -O ihex $^ $@
 
-.PHONY:	clean host_clean all_platforms clang-format FORCE
+.PHONY:	clean host_clean all_boards clang-format FORCE
 
 clean:	host_clean
 	$(Q)echo "  CLEAN"
 	-$(Q)$(RM) *.o *.d *.elf *.bin *~ $(TARGET) $(HOSTFILES)
-	-$(Q)$(RM) platforms/*/*.o platforms/*/*.d mapfile ftd2xx.dll
+	-$(Q)$(RM) boards/*/*.o boards/*/*.d mapfile ftd2xx.dll
 
 clang-format:
 	$(Q)clang-format -i *.c */*.c */*/*.c *.h */*.h */*/*.h

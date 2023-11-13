@@ -21,7 +21,7 @@
 /* This file implements the platform specific functions for the blackpill-f4 implementation. */
 
 #include "general.h"
-#include "platform.h"
+#include "board.h"
 #include "usb.h"
 #include "aux_serial.h"
 #include "serialno.h"
@@ -49,7 +49,7 @@ static volatile uint32_t time_ms = 0;
 void clock_setup(void)
 {
 	/* main clock 96Mhz */
-	rcc_clock_setup_pll(&rcc_hse_25mhz_3v3[PLATFORM_CLOCK_FREQ]);
+	rcc_clock_setup_pll(&rcc_hse_25mhz_3v3[BOARD_CLOCK_FREQ]);
 
 	/* Enable GPIO peripherals */
 	rcc_periph_clock_enable(RCC_GPIOA);

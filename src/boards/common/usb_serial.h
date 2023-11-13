@@ -1,8 +1,8 @@
 /*
  * This file is part of the Black Magic Debug project.
  *
- * Copyright (C) 2011  Black Sphere Technologies Ltd.
- * Written by Gareth McMullin <gareth@blacksphere.co.nz>
+ * Copyright (C) 2022 1BitSquared <info@1bitsquared.com>
+ * Written by Rachel Mant <git@dragonmux.network>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,33 +18,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Provides main entry point. Initialise subsystems */
+#ifndef BOARDS_COMMON_USB_SERIAL_H
+#define BOARDS_COMMON_USB_SERIAL_H
 
-#include "general.h"
-#include "board.h"
-#include "usbwrap.h"
-#include "setup.h"
-#include <libopencm3/stm32/usart.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "usb.h"
 
-int main(int argc, char **argv)
-{
-	(void)argc;
-	(void)argv;
-	clock_setup();
-	systick_setup();
-	usb_setup();
-	usart_setup();
-	gpio_setup();
+void usb_serial_set_config(usbd_device *dev, uint16_t value);
 
-	while (true) {
-		if (usb_data_waiting())
-			usart_send_blocking(USBUSART, usb_recv_blocking());
-		if (usart_data_waiting(USBUSART))
-		{
-			usb_send_blocking(usart_recv(USBUSART));
-		}
-		asm("nop");
-	}
+bool gdb_serial_get_dtr(void);
 
-	return 0;
-}
+void debug_serial_run(void);
+uint32_t debug_serial_fifo_send(const char *fifo, uint32_t fifo_begin, uint32_t fifo_end);
+
+#endif /* BOARDS_COMMON_USB_SERIAL_H */

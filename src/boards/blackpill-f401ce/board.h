@@ -18,33 +18,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Provides main entry point. Initialise subsystems */
+/* This file provides the platform specific declarations for the blackpill-f401ce implementation. */
 
-#include "general.h"
-#include "board.h"
-#include "usbwrap.h"
-#include "setup.h"
-#include <libopencm3/stm32/usart.h>
+#ifndef BOARDS_BLACKPILL_F401CE_BOARD_H
+#define BOARDS_BLACKPILL_F401CE_BOARD_H
 
-int main(int argc, char **argv)
-{
-	(void)argc;
-	(void)argv;
-	clock_setup();
-	systick_setup();
-	usb_setup();
-	usart_setup();
-	gpio_setup();
+#define BOARD_IDENT      "(BlackPill-F401CE) "
+#define BOARD_CLOCK_FREQ RCC_CLOCK_3V3_84MHZ
 
-	while (true) {
-		if (usb_data_waiting())
-			usart_send_blocking(USBUSART, usb_recv_blocking());
-		if (usart_data_waiting(USBUSART))
-		{
-			usb_send_blocking(usart_recv(USBUSART));
-		}
-		asm("nop");
-	}
+#include "blackpill-f4.h"
 
-	return 0;
-}
+#endif /* BOARDS_BLACKPILL_F401CE_BOARD_H */
